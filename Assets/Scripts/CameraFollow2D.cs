@@ -6,11 +6,9 @@ public class CameraFollow2D : MonoBehaviour
     public float yOffset = 1.5f;
 
     private Transform target;
-    private float fixedY;
 
     void Start()
     {
-        fixedY = transform.position.y;
         FindPlayer();
     }
 
@@ -24,7 +22,7 @@ public class CameraFollow2D : MonoBehaviour
 
         Vector3 desiredPos = new Vector3(
             target.position.x,
-            fixedY + yOffset,
+            target.position.y + yOffset,
             transform.position.z
         );
 
