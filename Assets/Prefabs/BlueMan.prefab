@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 3571308822919581118}
   m_Layer: 0
   m_Name: BlueMan
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -180,7 +180,7 @@ Rigidbody2D:
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_GravityScale: 5
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 861955f1e503f3943b2a25993da9aab1, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -204,7 +204,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   moveSpeed: 10
-  jumpForce: 12
+  jumpForce: 14
+  maxJumpCount: 2
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
