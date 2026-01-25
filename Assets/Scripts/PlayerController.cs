@@ -1,8 +1,11 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
 {
+    public int health = 100;
     public float moveSpeed = 10f;
     public float jumpForce = 12f;
     public int maxJumpCount = 2;
@@ -83,5 +86,44 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("isRunning", isRunning);
         animator.SetBool("isGrounded", isGrounded);
         animator.SetFloat("yVelocity", rb.linearVelocity.y);
+    }
+
+
+    private bool canTakeDamage = true;
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Damage") && canTakeDamage)
+        {
+            Debug.Log("HIT DAMAGE: " + collision.name);
+
+            canTakeDamage = false;
+
+            health -= 25;
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+            StartCoroutine(BLinkRed());
+
+            if (health <= 0)
+                Die();
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Damage"))
+            canTakeDamage = true;
+    }
+    private IEnumerator BLinkRed()
+    {
+        Color originalColor = spriteRenderer.color;
+        spriteRenderer.color = Color.red;
+        yield return new WaitForSeconds(0.2f);
+        spriteRenderer.color = originalColor;
+    }
+
+    private void Die() {
+
+        SceneManager.LoadScene("GameScene2");
+
     }
 }
