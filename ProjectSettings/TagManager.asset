@@ -4,7 +4,9 @@
 TagManager:
   serializedVersion: 3
   tags:
+  - Ground
   - Damage
+  - FinishGame
   layers:
   - Default
   - TransparentFX
@@ -41,6 +43,12 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Player
+    uniqueID: 2307759527
+    locked: 0
+  - name: Background
+    uniqueID: 1003040101
     locked: 0
   m_RenderingLayers:
   - Default
