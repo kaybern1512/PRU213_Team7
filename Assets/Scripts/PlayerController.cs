@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
@@ -9,6 +10,7 @@ public class PlayerController : MonoBehaviour
     public float moveSpeed = 10f;
     public float jumpForce = 12f;
     public int maxJumpCount = 2;
+    public Image healthImage; 
 
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
@@ -28,15 +30,22 @@ public class PlayerController : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
+    void Start()
+    {
+        UpdateHealthUI();
+    }
+
     void Update()
     {
         CheckGround();
-        HandleMovement();
         HandleJump();
         UpdateAnimation();
     }
+    void FixedUpdate()
+    {
+        HandleMovement();
+    }
 
-    // ================= KIỂM TRA CHẠM ĐẤT =================
     private void CheckGround()
     {
         isGrounded = Physics2D.OverlapCircle(
@@ -51,10 +60,9 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // ================= DI CHUYỂN =================
     private void HandleMovement()
     {
-        moveInput = Input.GetAxis("Horizontal");
+        moveInput = Input.GetAxisRaw("Horizontal");
 
         rb.linearVelocity = new Vector2(
             moveInput * moveSpeed,
@@ -65,20 +73,17 @@ public class PlayerController : MonoBehaviour
             spriteRenderer.flipX = moveInput < 0;
     }
 
-    // ================= NHẢY (DOUBLE JUMP) =================
     private void HandleJump()
     {
         if (Input.GetButtonDown("Jump") && jumpCount < maxJumpCount)
         {
-            rb.linearVelocity = new Vector2(
-                rb.linearVelocity.x,
-                jumpForce
-            );
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
+            rb.linearVelocity += Vector2.up * jumpForce;
+
             jumpCount++;
         }
     }
 
-    // ================= ANIMATION =================
     private void UpdateAnimation()
     {
         bool isRunning = Mathf.Abs(rb.linearVelocity.x) > 0.1f;
@@ -100,6 +105,7 @@ public class PlayerController : MonoBehaviour
             canTakeDamage = false;
 
             health -= 25;
+            UpdateHealthUI();
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
             StartCoroutine(BLinkRed());
 
@@ -121,9 +127,15 @@ public class PlayerController : MonoBehaviour
         spriteRenderer.color = originalColor;
     }
 
-    private void Die() {
-
-        SceneManager.LoadScene("GameScene2");
-
+    private void Die()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
+
+    public void UpdateHealthUI()
+    {
+        if (healthImage != null)
+            healthImage.fillAmount = health / 100f;
+    }
+
 }

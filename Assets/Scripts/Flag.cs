@@ -8,12 +8,6 @@ public class Flag : MonoBehaviour
     {
         if (!collision.CompareTag("Player")) return;
 
-        // ===== TUTORIAL STEP 3 =====
-        if (Tutorial.Instance != null && Tutorial.Instance.IsStep(3))
-        {
-            Tutorial.Instance.CompleteStep(3);
-        }
-
         Time.timeScale = 0f;
         winUI.SetActive(true);
     }
