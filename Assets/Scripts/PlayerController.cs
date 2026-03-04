@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class PlayerController : MonoBehaviour
 {
     public int health = 100;
-    public float moveSpeed = 10f;
+    public float moveSpeed = 14f;
     public float jumpForce = 12f;
     public int maxJumpCount = 2;
     public Image healthImage; 
@@ -100,7 +100,6 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.CompareTag("Damage") && canTakeDamage)
         {
-            Debug.Log("HIT DAMAGE: " + collision.name);
 
             canTakeDamage = false;
 
