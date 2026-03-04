@@ -18,7 +18,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform groundCheck;
     private bool isGrounded;
     private int jumpCount;
-
+    private float originalJumpForce;
+    private bool isJumpBoosted = false;
     private Animator animator;
 
     void Awake()
@@ -26,6 +27,8 @@ public class PlayerController : MonoBehaviour
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        originalJumpForce = jumpForce;
+
     }
 
     void Update()
@@ -124,5 +127,31 @@ public class PlayerController : MonoBehaviour
 
         SceneManager.LoadScene("GameScene2");
 
+    }
+
+    public void BoostJump(float multiplier, float duration)
+    {
+        if (isJumpBoosted) return;
+
+        isJumpBoosted = true;
+        jumpForce *= multiplier;
+        Invoke(nameof(ResetJump), duration);
+    }
+
+    private void ResetJump()
+    {
+        jumpForce = originalJumpForce;
+        isJumpBoosted = false;
+    }
+
+    public void Heal(int amount)
+    {
+        health += amount;
+
+        if (health > 100)
+            health = 100;
+
+        Debug.Log("Ăn item hồi máu +" + amount +
+                  " | HP hiện tại: " + health);
     }
 }
