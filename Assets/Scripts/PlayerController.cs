@@ -9,7 +9,7 @@ public class PlayerController : MonoBehaviour
     public float moveSpeed = 14f;
     public float jumpForce = 12f;
     public int maxJumpCount = 2;
-
+    public PlayerAudio playerAudio;
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
     private float moveInput;
@@ -78,6 +78,8 @@ public class PlayerController : MonoBehaviour
                 jumpForce
             );
             jumpCount++;
+            if (playerAudio != null)
+                playerAudio.PlayJump();
         }
     }
 
@@ -102,6 +104,8 @@ public class PlayerController : MonoBehaviour
             canTakeDamage = false;
 
             health -= 25;
+            if (playerAudio != null)
+                playerAudio.PlayHurt();
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
             StartCoroutine(BLinkRed());
 
