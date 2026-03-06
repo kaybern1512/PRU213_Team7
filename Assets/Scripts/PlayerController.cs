@@ -10,7 +10,7 @@ public class PlayerController : MonoBehaviour
     public float moveSpeed = 14f;
     public float jumpForce = 12f;
     public int maxJumpCount = 2;
-    public Image healthImage;
+    public PlayerAudio playerAudio;    public Image healthImage;
     public int coins = 0;
 
     private Rigidbody2D rb;
@@ -21,7 +21,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform groundCheck;
     private bool isGrounded;
     private int jumpCount;
-
+    private float originalJumpForce;
+    private bool isJumpBoosted = false;
     private Animator animator;
 
     void Awake()
@@ -29,6 +30,8 @@ public class PlayerController : MonoBehaviour
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        originalJumpForce = jumpForce;
+
     }
 
 
@@ -78,6 +81,8 @@ public class PlayerController : MonoBehaviour
             rb.linearVelocity += Vector2.up * jumpForce;
 
             jumpCount++;
+            if (playerAudio != null)
+                playerAudio.PlayJump();
         }
     }
 
@@ -119,6 +124,8 @@ public class PlayerController : MonoBehaviour
         UpdateHealthUI();
 
         if (knockUp)
+            if (playerAudio != null)
+                playerAudio.PlayHurt();
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
 
         StartCoroutine(BLinkRed());
@@ -158,4 +165,29 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void BoostJump(float multiplier, float duration)
+    {
+        if (isJumpBoosted) return;
+
+        isJumpBoosted = true;
+        jumpForce *= multiplier;
+        Invoke(nameof(ResetJump), duration);
+    }
+
+    private void ResetJump()
+    {
+        jumpForce = originalJumpForce;
+        isJumpBoosted = false;
+    }
+
+    public void Heal(int amount)
+    {
+        health += amount;
+
+        if (health > 100)
+            health = 100;
+
+        Debug.Log("Ăn item hồi máu +" + amount +
+                  " | HP hiện tại: " + health);
+    }
 }
