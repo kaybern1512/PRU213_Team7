@@ -1,12 +1,15 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
 {
-    public float moveSpeed = 10f;
+    public int health = 100;
+    public float moveSpeed = 14f;
     public float jumpForce = 12f;
     public int maxJumpCount = 2;
-
+    public PlayerAudio playerAudio;
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
     private float moveInput;
@@ -15,7 +18,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform groundCheck;
     private bool isGrounded;
     private int jumpCount;
-
+    private float originalJumpForce;
+    private bool isJumpBoosted = false;
     private Animator animator;
 
     void Awake()
@@ -23,6 +27,8 @@ public class PlayerController : MonoBehaviour
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        originalJumpForce = jumpForce;
+
     }
 
     void Update()
@@ -72,6 +78,8 @@ public class PlayerController : MonoBehaviour
                 jumpForce
             );
             jumpCount++;
+            if (playerAudio != null)
+                playerAudio.PlayJump();
         }
     }
 
@@ -83,5 +91,70 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("isRunning", isRunning);
         animator.SetBool("isGrounded", isGrounded);
         animator.SetFloat("yVelocity", rb.linearVelocity.y);
+    }
+
+
+    private bool canTakeDamage = true;
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Damage") && canTakeDamage)
+        {
+
+            canTakeDamage = false;
+
+            health -= 25;
+            if (playerAudio != null)
+                playerAudio.PlayHurt();
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+            StartCoroutine(BLinkRed());
+
+            if (health <= 0)
+                Die();
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Damage"))
+            canTakeDamage = true;
+    }
+    private IEnumerator BLinkRed()
+    {
+        Color originalColor = spriteRenderer.color;
+        spriteRenderer.color = Color.red;
+        yield return new WaitForSeconds(0.2f);
+        spriteRenderer.color = originalColor;
+    }
+
+    private void Die()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void BoostJump(float multiplier, float duration)
+    {
+        if (isJumpBoosted) return;
+
+        isJumpBoosted = true;
+        jumpForce *= multiplier;
+        Invoke(nameof(ResetJump), duration);
+    }
+
+    private void ResetJump()
+    {
+        jumpForce = originalJumpForce;
+        isJumpBoosted = false;
+    }
+
+    public void Heal(int amount)
+    {
+        health += amount;
+
+        if (health > 100)
+            health = 100;
+
+        Debug.Log("Ăn item hồi máu +" + amount +
+                  " | HP hiện tại: " + health);
     }
 }
