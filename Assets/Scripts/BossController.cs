@@ -20,7 +20,7 @@ public class BossController : MonoBehaviour
     public Transform player;
     public LayerMask groundLayer;
     public Transform groundCheck;
-    public GameObject slashTrigger; // Kéo vật chứa Collider của thanh kiếm vào đây
+    public GameObject slashTrigger;
 
     private bool isGrounded;
     private bool isFighting = false;
@@ -35,14 +35,15 @@ public class BossController : MonoBehaviour
         rb.mass = 1000f;
         rb.gravityScale = 4f;
 
-        // No friction giúp rơi mượt, không dính tường
         PhysicsMaterial2D noFriction = new PhysicsMaterial2D("NoFriction");
         noFriction.friction = 0f;
         noFriction.bounciness = 0f;
         rb.sharedMaterial = noFriction;
 
         if (slashTrigger != null) slashTrigger.SetActive(false);
-        if (player != null) StartBattle();
+
+        // Chỉ bắt đầu trận đấu nếu player đã ở trong tầm kích hoạt
+        //if (player != null) StartBattle();
     }
 
     void Update()
@@ -53,27 +54,33 @@ public class BossController : MonoBehaviour
         anim.SetBool("isGrounded", isGrounded);
         anim.SetFloat("VerticalSpeed", rb.linearVelocity.y);
 
-        // --- CƠ CHẾ CHỐNG TRƯỢT IDLE ---
+        // --- CHỐNG TRƯỢT KHI IDLE ---
         if (!isPerformingAction && isGrounded)
         {
             rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
-            // Khóa vị trí X để không bị trượt
             rb.constraints = RigidbodyConstraints2D.FreezeRotation | RigidbodyConstraints2D.FreezePositionX;
         }
-        else
+        else if (!isPerformingAction)
         {
-            // Mở khóa X khi cần Dash, Jump hoặc bị đẩy
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         }
     }
 
     public void StartBattle()
     {
+        if (isFighting) return;
         isFighting = true;
+
+        // --- ĐỔI NHẠC SANG BOSS THEME ---
+        if (StageMusicManager.instance != null)
+        {
+            StageMusicManager.instance.PlayBossMusic();
+        }
+
         StartCoroutine(BossLogic());
     }
 
-    // --- ANIMATION EVENTS (Kích hoạt từ Sprite) ---
+    // Animation Events gọi từ Sprite Editor
     public void EnableSlashTrigger() { if (slashTrigger != null) slashTrigger.SetActive(true); }
     public void DisableSlashTrigger() { if (slashTrigger != null) slashTrigger.SetActive(false); }
 
@@ -100,26 +107,26 @@ public class BossController : MonoBehaviour
     IEnumerator JumpChase()
     {
         isPerformingAction = true;
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation; // Mở khóa X để nhảy
         LookAtPlayer();
 
         float direction = (player.position.x > transform.position.x) ? 1f : -1f;
         rb.linearVelocity = new Vector2(direction * jumpForceX, jumpForceY);
 
         yield return new WaitForSeconds(0.2f);
-
         while (!isGrounded) yield return null;
 
-        // ĐÁP ĐẤT TỨC THÌ
         rb.linearVelocity = Vector2.zero;
-        anim.Play("Zero_EnterGround", 0, 0f); // Thay bằng tên state Landing của bạn
+        anim.Play("Zero_EnterGround", 0, 0f);
 
-        yield return new WaitForSeconds(0.15f); // Thời gian khựng lại khi đáp đất
+        yield return new WaitForSeconds(0.15f);
         isPerformingAction = false;
     }
 
     IEnumerator DashAttack()
     {
         isPerformingAction = true;
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation; // Mở khóa X để lướt
         LookAtPlayer();
 
         anim.Play("Zero_BeforeDash");
@@ -140,7 +147,6 @@ public class BossController : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
         anim.SetBool("isDashing", false);
 
-        // Diễn frame kết thúc Dash
         yield return new WaitForSeconds(0.2f);
         isPerformingAction = false;
     }
@@ -151,28 +157,27 @@ public class BossController : MonoBehaviour
         LookAtPlayer();
         rb.linearVelocity = Vector2.zero;
 
-        // Chém nhát 1
+        // Nhát 1
         anim.Play("Zero_SaberSlash1", 0, 0f);
         anim.SetInteger("ComboStep", 1);
         yield return new WaitForSeconds(0.4f);
 
-        // Chém nhát 2
+        // Nhát 2
         if (player != null && Vector2.Distance(transform.position, player.position) < attackRange + 1.5f)
         {
             anim.SetInteger("ComboStep", 2);
             yield return new WaitForSeconds(0.4f);
 
-            // Chém nhát 3
+            // Nhát 3
             anim.SetInteger("ComboStep", 3);
 
-            // Khóa Y nếu nhát chém này có sprite lún xuống đất
-            rb.constraints = RigidbodyConstraints2D.FreezeRotation | RigidbodyConstraints2D.FreezePositionY;
+            // KHÓA Y: Chống lún đất gây fail GroundCheck
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation | RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezePositionX;
             yield return new WaitForSeconds(0.6f);
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         }
 
         anim.SetInteger("ComboStep", 0);
-        // Chờ diễn nốt frame thu kiếm trước khi cho phép Boss hành động tiếp
         yield return new WaitForSeconds(0.25f);
         isPerformingAction = false;
     }
