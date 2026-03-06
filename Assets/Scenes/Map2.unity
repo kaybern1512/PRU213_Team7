@@ -1910,7 +1910,7 @@ TilemapCollider2D:
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 400751ae88a58cc419c09ad1cc754ed1, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -40378,7 +40378,7 @@ Rigidbody2D:
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_GravityScale: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 400751ae88a58cc419c09ad1cc754ed1, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -40526,10 +40526,13 @@ MonoBehaviour:
   dashSpeed: 15
   attackRange: 3.5
   attackRate: 0.8
+  jumpForceX: 12
+  jumpForceY: 15
+  playerJumpThreshold: 2
   player: {fileID: 1462134752}
   groundLayer:
     serializedVersion: 2
-    m_Bits: 320
+    m_Bits: 256
   groundCheck: {fileID: 2143857599}
 --- !u!1 &358398472
 GameObject:

@@ -7,13 +7,18 @@ public class BossController : MonoBehaviour
     private Rigidbody2D rb;
 
     [Header("Settings")]
-    public float dashSpeed = 22f;    // Tăng tốc độ để ra đòn gắt hơn
-    public float attackRange = 3.5f; // Khoảng cách để bắt đầu chém
-    public float attackRate = 0.5f;  // Nghỉ giữa các đòn đánh
+    public float dashSpeed = 22f;
+    public float attackRange = 3.5f;
+    public float attackRate = 0.5f;
+
+    [Header("Jump Settings")]
+    public float jumpForceX = 12f;
+    public float jumpForceY = 16f;
+    public float playerJumpThreshold = 2f;
 
     [Header("References")]
     public Transform player;
-    public LayerMask groundLayer;    // Phải chọn đúng Layer sàn nhà trong Inspector
+    public LayerMask groundLayer;
     public Transform groundCheck;
 
     private bool isGrounded;
@@ -25,12 +30,15 @@ public class BossController : MonoBehaviour
         anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
 
-        // Thiết lập vật lý: Boss cực nặng để không vật thể nào đẩy được
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-        rb.mass = 10000f;
+        rb.mass = 1000f; // Giảm mass xuống mức hợp lý hơn (1000 là đủ)
+        rb.gravityScale = 4f;
 
-        // Đảm bảo Boss không bị ma sát làm chậm khi Dash
-        rb.sharedMaterial = new PhysicsMaterial2D { friction = 0f };
+        // Tạo vật lý không ma sát để không bị dính vào tường
+        PhysicsMaterial2D noFriction = new PhysicsMaterial2D("NoFriction");
+        noFriction.friction = 0f;
+        noFriction.bounciness = 0f;
+        rb.sharedMaterial = noFriction;
 
         if (player != null) StartBattle();
     }
@@ -39,13 +47,14 @@ public class BossController : MonoBehaviour
     {
         if (!isFighting) return;
 
-        // Kiểm tra mặt đất - Đây là mấu chốt để animation không bị "liệt"
+        // Kiểm tra đất bằng Circle kết hợp khoảng cách nhỏ
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
+
         anim.SetBool("isGrounded", isGrounded);
         anim.SetFloat("VerticalSpeed", rb.linearVelocity.y);
 
-        // CHỐNG TRƯỢT KHI IDLE: Ép vận tốc về 0 nếu không trong hành động
-        if (!isPerformingAction)
+        // Chống trượt trên mặt đất khi không làm gì
+        if (!isPerformingAction && isGrounded)
         {
             rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
         }
@@ -61,8 +70,11 @@ public class BossController : MonoBehaviour
     {
         while (isFighting)
         {
-            isPerformingAction = false;
-            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+            // ĐIỀU KIỆN TIÊN QUYẾT: Boss phải ở trên đất mới được tính toán đòn tiếp theo
+            while (!isGrounded || isPerformingAction)
+            {
+                yield return null;
+            }
 
             yield return new WaitForSeconds(attackRate);
 
@@ -70,8 +82,12 @@ public class BossController : MonoBehaviour
 
             float distanceToPlayer = Vector2.Distance(transform.position, player.position);
 
-            // LOGIC ƯU TIÊN: Tiếp cận rồi mới chém
-            if (distanceToPlayer > attackRange)
+            // Ưu tiên nhảy nếu player nhảy cao
+            if (player.position.y > transform.position.y + playerJumpThreshold)
+            {
+                yield return StartCoroutine(JumpChase());
+            }
+            else if (distanceToPlayer > attackRange)
             {
                 yield return StartCoroutine(DashAttack());
             }
@@ -82,11 +98,27 @@ public class BossController : MonoBehaviour
         }
     }
 
-    void LookAtPlayer()
+    IEnumerator JumpChase()
     {
-        if (player == null) return;
-        float dir = (player.position.x > transform.position.x) ? 1f : -1f;
-        transform.localScale = new Vector3(dir * Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+        isPerformingAction = true;
+        LookAtPlayer();
+
+        float direction = (player.position.x > transform.position.x) ? 1f : -1f;
+        rb.linearVelocity = new Vector2(direction * jumpForceX, jumpForceY);
+
+        // Buộc phải rời đất trước khi bắt đầu check chạm đất lại
+        yield return new WaitForSeconds(0.3f);
+
+        // Đợi chạm đất (với timeout để tránh kẹt)
+        float timer = 0;
+        while (!isGrounded && timer < 3f)
+        {
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+        isPerformingAction = false;
     }
 
     IEnumerator DashAttack()
@@ -94,23 +126,19 @@ public class BossController : MonoBehaviour
         isPerformingAction = true;
         LookAtPlayer();
 
-        // ÉP CHẠY ANIMATION DASH (Thay "Dash" bằng tên chính xác trong Animator của bạn)
         anim.Play("Zero_BeforeDash");
         anim.SetBool("isDashing", true);
-
-        yield return new WaitForSeconds(0.05f); // Chờ cực ngắn để tạo cảm giác phản ứng nhanh
+        yield return new WaitForSeconds(0.1f);
 
         float direction = (player.position.x > transform.position.x) ? 1f : -1f;
-        float timer = 0.6f;
+        float dashTimer = 0.6f;
 
-        while (timer > 0)
+        while (dashTimer > 0)
         {
-            // Zero đi xuyên qua player và chỉ dừng khi cách 1 khoảng nhỏ hoặc hết thời gian
-            float currentDist = Vector2.Distance(transform.position, player.position);
-            if (currentDist < 1.0f) break;
+            if (Vector2.Distance(transform.position, player.position) < 1.2f) break;
 
             rb.linearVelocity = new Vector2(direction * dashSpeed, rb.linearVelocity.y);
-            timer -= Time.deltaTime;
+            dashTimer -= Time.deltaTime;
             yield return null;
         }
 
@@ -126,24 +154,27 @@ public class BossController : MonoBehaviour
         LookAtPlayer();
         rb.linearVelocity = Vector2.zero;
 
-        // Nhát 1 - Ép chạy animation chém ngay lập tức
         anim.Play("Zero_SaberSlash1");
-        anim.SetTrigger("SlashTrigger");
         anim.SetInteger("ComboStep", 1);
         yield return new WaitForSeconds(0.4f);
 
-        // Kiểm tra nếu player vẫn trong tầm đánh thì chém tiếp
         if (player != null && Vector2.Distance(transform.position, player.position) < attackRange + 1.5f)
         {
             anim.SetInteger("ComboStep", 2);
             yield return new WaitForSeconds(0.4f);
-
             anim.SetInteger("ComboStep", 3);
             yield return new WaitForSeconds(0.5f);
         }
 
         anim.SetInteger("ComboStep", 0);
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(0.2f); // Nghỉ sau combo
         isPerformingAction = false;
+    }
+
+    void LookAtPlayer()
+    {
+        if (player == null) return;
+        float dir = (player.position.x > transform.position.x) ? 1f : -1f;
+        transform.localScale = new Vector3(dir * Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
     }
 }
