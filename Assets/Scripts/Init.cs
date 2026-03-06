@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 public class Init : MonoBehaviour
 {
-    public Image healthImage; // KÉO FILL IMAGE VÀO ĐÂY
+    public Image healthImage; 
 
     void Start()
     {
@@ -34,5 +34,6 @@ public class Init : MonoBehaviour
 
         pc.healthImage = healthImage;
         pc.UpdateHealthUI(); // gọi cập nhật ngay
+        Debug.Log("Health UI assigned: " + healthImage);
     }
 }

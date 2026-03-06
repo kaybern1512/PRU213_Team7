@@ -10,7 +10,8 @@ public class PlayerController : MonoBehaviour
     public float moveSpeed = 14f;
     public float jumpForce = 12f;
     public int maxJumpCount = 2;
-    public Image healthImage; 
+    public Image healthImage;
+    public int coins = 0;
 
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
@@ -30,10 +31,6 @@ public class PlayerController : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
-    void Start()
-    {
-        UpdateHealthUI();
-    }
 
     void Update()
     {
@@ -96,21 +93,38 @@ public class PlayerController : MonoBehaviour
 
     private bool canTakeDamage = true;
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    //private void OnTriggerEnter2D(Collider2D collision)
+    //{
+    //    if (collision.CompareTag("Damage") && canTakeDamage)
+    //    {
+
+    //        canTakeDamage = false;
+
+    //        health -= 25;
+    //        UpdateHealthUI();
+    //        rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+    //        StartCoroutine(BLinkRed());
+
+    //        if (health <= 0)
+    //            Die();
+    //    }
+    //}
+
+    public void TakeDamage(int damage, bool knockUp)
     {
-        if (collision.CompareTag("Damage") && canTakeDamage)
-        {
+        if (!canTakeDamage) return;
+        Debug.Log("Player take damage");
+        canTakeDamage = false;
+        health -= damage;
+        UpdateHealthUI();
 
-            canTakeDamage = false;
-
-            health -= 25;
-            UpdateHealthUI();
+        if (knockUp)
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-            StartCoroutine(BLinkRed());
 
-            if (health <= 0)
-                Die();
-        }
+        StartCoroutine(BLinkRed());
+
+        if (health <= 0)
+            Die();
     }
 
     private void OnTriggerExit2D(Collider2D collision)
@@ -126,7 +140,7 @@ public class PlayerController : MonoBehaviour
         spriteRenderer.color = originalColor;
     }
 
-    private void Die()
+    public void Die()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
@@ -134,7 +148,14 @@ public class PlayerController : MonoBehaviour
     public void UpdateHealthUI()
     {
         if (healthImage != null)
+        {
             healthImage.fillAmount = health / 100f;
+            Debug.Log("Update UI: " + health);
+        }
+        else
+        {
+            Debug.LogError("healthImage is NULL");
+        }
     }
 
 }

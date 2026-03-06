@@ -205,8 +205,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   health: 100
   moveSpeed: 15
-  jumpForce: 14
+  jumpForce: 15
   maxJumpCount: 2
+  healthImage: {fileID: 0}
+  coins: 0
   groundLayer:
     serializedVersion: 2
     m_Bits: 64

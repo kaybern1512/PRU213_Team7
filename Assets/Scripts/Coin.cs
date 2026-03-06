@@ -1,21 +1,26 @@
+using TMPro;
 using UnityEngine;
 
 public class Coin : MonoBehaviour
 {
+    public int coinsToGive=1;
+
+    private TextMeshProUGUI coinText;
+
+
+    private void Start()
+    {
+        coinText=GameObject.Find("CoinText").GetComponent<TextMeshProUGUI>();
+    }
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!collision.CompareTag("Player")) return;
-
-        Player player = collision.GetComponent<Player>();
-        player.coins++;
-
-        // ===== TUTORIAL STEP 2 =====
-        if (Tutorial.Instance != null && Tutorial.Instance.IsStep(2))
+        if (collision.CompareTag("Player"))
         {
-            Tutorial.Instance.CompleteStep(2);
+            PlayerController player = collision.GetComponent<PlayerController>();
+            player.coins += coinsToGive;
+            coinText.text = player.coins.ToString();
+            Destroy(gameObject);
         }
-
-        Destroy(gameObject);
     }
 
 }
