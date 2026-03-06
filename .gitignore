@@ -64,3 +64,6 @@ AssetStoreTools*
 
 # Addressables build
 */addressables_content_state.bin
+
+# Unity Logs
+[Ll]ogs/
