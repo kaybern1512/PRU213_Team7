@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Flag : MonoBehaviour
 {
@@ -6,7 +6,6 @@ public class Flag : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        Debug.Log("Cham: " + collision.name);
 
         if (collision.CompareTag("Player"))
         {
