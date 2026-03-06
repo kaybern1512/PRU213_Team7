@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 3571308822919581118}
   - component: {fileID: 3496812765266746794}
   - component: {fileID: 9161589270279127201}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: BlueMan
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -212,7 +212,7 @@ MonoBehaviour:
   playerAudio: {fileID: 3496812765266746794}
   groundLayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 256
   groundCheck: {fileID: 2775294875833676644}
 --- !u!114 &3496812765266746794
 MonoBehaviour:
@@ -336,7 +336,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2775294875833676644}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: GroundCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}

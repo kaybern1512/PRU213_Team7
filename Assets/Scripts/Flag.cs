@@ -7,7 +7,8 @@ public class Flag : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            SceneManager.LoadScene("GameScene3");
+            int currentScene = SceneManager.GetActiveScene().buildIndex;
+            SceneManager.LoadScene(currentScene + 1);
         }
     }
 }

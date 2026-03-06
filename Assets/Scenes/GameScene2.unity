@@ -131,7 +131,7 @@ GameObject:
   - component: {fileID: 69892402}
   - component: {fileID: 69892401}
   - component: {fileID: 69892400}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: Damage
   m_TagString: Damage
   m_Icon: {fileID: 0}
@@ -880,7 +880,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b6a25f6e775a804e8645eadf847021d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Flag
-  winUI: {fileID: 784448764}
 --- !u!61 &119477221
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1627,7 +1626,7 @@ GameObject:
   - component: {fileID: 1431042740}
   - component: {fileID: 1431042739}
   - component: {fileID: 1431042741}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: Ground
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -17,7 +17,7 @@ public class BossController : MonoBehaviour
     public float playerJumpThreshold = 2f;
 
     [Header("References")]
-    public Transform player;
+    public Transform player; // Sẽ tự động gán khi bắt đầu trận đấu
     public LayerMask groundLayer;
     public Transform groundCheck;
     public GameObject slashTrigger;
@@ -41,9 +41,6 @@ public class BossController : MonoBehaviour
         rb.sharedMaterial = noFriction;
 
         if (slashTrigger != null) slashTrigger.SetActive(false);
-
-        // Chỉ bắt đầu trận đấu nếu player đã ở trong tầm kích hoạt
-        //if (player != null) StartBattle();
     }
 
     void Update()
@@ -54,7 +51,6 @@ public class BossController : MonoBehaviour
         anim.SetBool("isGrounded", isGrounded);
         anim.SetFloat("VerticalSpeed", rb.linearVelocity.y);
 
-        // --- CHỐNG TRƯỢT KHI IDLE ---
         if (!isPerformingAction && isGrounded)
         {
             rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
@@ -66,21 +62,33 @@ public class BossController : MonoBehaviour
         }
     }
 
+    // --- HÀM NÀY ĐƯỢC GỌI TỪ TRIGGER ZONE ---
     public void StartBattle()
     {
         if (isFighting) return;
-        isFighting = true;
 
-        // --- ĐỔI NHẠC SANG BOSS THEME ---
-        if (StageMusicManager.instance != null)
+        // TỰ ĐỘNG TÌM PLAYER TRONG SCENE BẰNG TAG
+        // Vì Player được spawn ra sau nên ta phải tìm lúc này
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+
+        if (playerObj != null)
         {
-            StageMusicManager.instance.PlayBossMusic();
-        }
+            player = playerObj.transform;
+            isFighting = true;
 
-        StartCoroutine(BossLogic());
+            if (StageMusicManager.instance != null)
+            {
+                StageMusicManager.instance.PlayBossMusic();
+            }
+
+            StartCoroutine(BossLogic());
+        }
+        else
+        {
+            Debug.LogError("Boss không tìm thấy đối tượng nào có Tag là 'Player'!");
+        }
     }
 
-    // Animation Events gọi từ Sprite Editor
     public void EnableSlashTrigger() { if (slashTrigger != null) slashTrigger.SetActive(true); }
     public void DisableSlashTrigger() { if (slashTrigger != null) slashTrigger.SetActive(false); }
 
@@ -91,6 +99,8 @@ public class BossController : MonoBehaviour
             while (!isGrounded || isPerformingAction) yield return null;
 
             yield return new WaitForSeconds(attackRate);
+
+            // Kiểm tra lại nếu player bỗng nhiên mất (ví dụ chết)
             if (player == null) yield break;
 
             float distanceToPlayer = Vector2.Distance(transform.position, player.position);
@@ -100,14 +110,14 @@ public class BossController : MonoBehaviour
             else if (distanceToPlayer > attackRange)
                 yield return StartCoroutine(DashAttack());
             else
-                yield return StartCoroutine(SaberCombo());
+                yield return StartCoroutine(SaberCombo()); // Kích hoạt animation chém
         }
     }
 
     IEnumerator JumpChase()
     {
         isPerformingAction = true;
-        rb.constraints = RigidbodyConstraints2D.FreezeRotation; // Mở khóa X để nhảy
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         LookAtPlayer();
 
         float direction = (player.position.x > transform.position.x) ? 1f : -1f;
@@ -126,7 +136,7 @@ public class BossController : MonoBehaviour
     IEnumerator DashAttack()
     {
         isPerformingAction = true;
-        rb.constraints = RigidbodyConstraints2D.FreezeRotation; // Mở khóa X để lướt
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         LookAtPlayer();
 
         anim.Play("Zero_BeforeDash");
@@ -138,7 +148,7 @@ public class BossController : MonoBehaviour
 
         while (dashTimer > 0)
         {
-            if (Vector2.Distance(transform.position, player.position) < 1.2f) break;
+            if (player == null || Vector2.Distance(transform.position, player.position) < 1.2f) break;
             rb.linearVelocity = new Vector2(direction * dashSpeed, rb.linearVelocity.y);
             dashTimer -= Time.deltaTime;
             yield return null;
@@ -157,21 +167,16 @@ public class BossController : MonoBehaviour
         LookAtPlayer();
         rb.linearVelocity = Vector2.zero;
 
-        // Nhát 1
         anim.Play("Zero_SaberSlash1", 0, 0f);
         anim.SetInteger("ComboStep", 1);
         yield return new WaitForSeconds(0.4f);
 
-        // Nhát 2
         if (player != null && Vector2.Distance(transform.position, player.position) < attackRange + 1.5f)
         {
             anim.SetInteger("ComboStep", 2);
             yield return new WaitForSeconds(0.4f);
 
-            // Nhát 3
             anim.SetInteger("ComboStep", 3);
-
-            // KHÓA Y: Chống lún đất gây fail GroundCheck
             rb.constraints = RigidbodyConstraints2D.FreezeRotation | RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezePositionX;
             yield return new WaitForSeconds(0.6f);
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
