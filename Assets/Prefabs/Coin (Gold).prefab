@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 4547567731735338082}
   m_Layer: 0
   m_Name: Coin (Gold)
-  m_TagString: Untagged
+  m_TagString: Coin
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -104,7 +104,7 @@ Animator:
   m_GameObject: {fileID: 5320887624969368159}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: f3d4ff9da3546a1428156849d85caf5f, type: 2}
+  m_Controller: {fileID: 9100000, guid: c984ebb65d963804a919de4f67905471, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -125,10 +125,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 5320887624969368159}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0dd0d7a6e08b7b54791a4bffe37b494b, type: 3}
+  m_Script: {fileID: 11500000, guid: 4d53aca79a87ba548bfc9e81c5664857, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Coin
-  coinsToGive: 3
+  coinsToGive: 1
 --- !u!61 &4547567731735338082
 BoxCollider2D:
   m_ObjectHideFlags: 0

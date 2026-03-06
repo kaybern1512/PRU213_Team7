@@ -1,19 +1,20 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
 
 public class Init : MonoBehaviour
 {
-    public Image healthImage; 
-
     void Start()
     {
         GameObject selectedCharacter = CharacterSelect.selectedCharacter;
+
+        Debug.Log("Init.Start() is running");
 
         if (selectedCharacter == null)
         {
             Debug.LogWarning("selectedCharacter is NULL");
             return;
         }
+
+        Debug.Log("Selected Character = " + selectedCharacter.name);
 
         GameObject player = Instantiate(
             selectedCharacter,
@@ -22,18 +23,5 @@ public class Init : MonoBehaviour
         );
 
         player.name = "Player";
-
-        // ===== GÁN UI CHO PLAYER =====
-        PlayerController pc = player.GetComponent<PlayerController>();
-
-        if (pc == null)
-        {
-            Debug.LogError("PlayerController NOT FOUND on player prefab");
-            return;
-        }
-
-        pc.healthImage = healthImage;
-        pc.UpdateHealthUI(); // gọi cập nhật ngay
-        Debug.Log("Health UI assigned: " + healthImage);
     }
 }

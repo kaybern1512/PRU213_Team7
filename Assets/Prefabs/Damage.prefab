@@ -198,11 +198,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 4737442913201191557}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 89b67c24bab22144cac716af17f78b2c, type: 3}
+  m_Script: {fileID: 11500000, guid: 8247ff847095a2c498f8d549d014bbd8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Damage
   damage: 25
   knockUp: 1
+  instantKill: 0
 --- !u!19719996 &7811711414542575327
 TilemapCollider2D:
   m_ObjectHideFlags: 0

@@ -6,10 +6,14 @@ public class Flag : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!collision.CompareTag("Player")) return;
+        Debug.Log("Cham: " + collision.name);
 
-        Time.timeScale = 0f;
-        winUI.SetActive(true);
+        if (collision.CompareTag("Player"))
+        {
+            Time.timeScale = 0f;
+            winUI.SetActive(true);
+        }
     }
+
 
 }

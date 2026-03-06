@@ -17,7 +17,7 @@ public class Coin : MonoBehaviour
         if (collision.CompareTag("Player"))
         {
             PlayerController player = collision.GetComponent<PlayerController>();
-            player.coins += coinsToGive;
+            player.AddCoins(coinsToGive);
             coinText.text = player.coins.ToString();
             Destroy(gameObject);
         }
