@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
@@ -11,6 +12,8 @@ public class PlayerController : MonoBehaviour
     public int maxJumpCount = 2;
     public PlayerAudio playerAudio;
     public int coins = 0;
+    public Image healthBar;
+    public int maxHealth = 100;
 
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
@@ -150,6 +153,13 @@ public class PlayerController : MonoBehaviour
 
         Debug.Log("Ăn item hồi máu +" + amount +
                   " | HP hiện tại: " + health);
+        if (health > maxHealth)
+            health = maxHealth;
+
+        if (healthBar != null)
+        {
+            healthBar.fillAmount = (float)health / maxHealth;
+        }
     }
 
     public void TakeDamage(int damage, bool knockUp)
@@ -159,6 +169,11 @@ public class PlayerController : MonoBehaviour
         canTakeDamage = false;
 
         health -= damage;
+
+        if (healthBar != null)
+        {
+            healthBar.fillAmount = (float)health / maxHealth;
+        }
 
         if (playerAudio != null)
             playerAudio.PlayHurt();
@@ -171,6 +186,7 @@ public class PlayerController : MonoBehaviour
         if (health <= 0)
             Die();
     }
+
     public void AddCoins(int amount)
     {
         coins += amount;

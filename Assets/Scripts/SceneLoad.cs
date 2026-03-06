@@ -15,4 +15,11 @@ public class SceneLoad : MonoBehaviour
         SceneManager.LoadSceneAsync(0);
         Time.timeScale = 1f;
     }
+
+    public void ReplayLevel()
+    {
+        int currentIndex = SceneManager.GetActiveScene().buildIndex;
+        SceneManager.LoadSceneAsync(currentIndex);
+        Time.timeScale = 1f;
+    }
 }
