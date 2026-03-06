@@ -127,10 +127,9 @@ public class PlayerController : MonoBehaviour
         spriteRenderer.color = originalColor;
     }
 
-    private void Die() {
-
-        SceneManager.LoadScene("GameScene2");
-
+    private void Die()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void BoostJump(float multiplier, float duration)

@@ -1,19 +1,13 @@
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Flag : MonoBehaviour
 {
-    public GameObject winUI;
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        Debug.Log("Cham: " + collision.name);
-
         if (collision.CompareTag("Player"))
         {
-            Time.timeScale = 0f;
-            winUI.SetActive(true);
+            SceneManager.LoadScene("GameScene3");
         }
     }
-
-
 }
