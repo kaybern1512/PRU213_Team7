@@ -4,13 +4,13 @@ using UnityEngine;
 public class DragonFireCycle : MonoBehaviour
 {
     [Header("Refs")]
-    public GameObject fireVFXRoot;          // kéo FireVFXRoot
-    public SpriteRenderer fireRenderer;     // kéo SpriteRenderer của FireVFX
-    public BoxCollider2D hitbox;            // kéo BoxCollider2D của FireHitbox
+    public GameObject fireVFXRoot;
+    public SpriteRenderer fireRenderer;
+    public BoxCollider2D hitbox;
 
     [Header("Timing")]
-    public float startDelay = 5f;           // sau khi bắt đầu game 5s mới phun
-    public float fireInterval = 8f;         // mỗi lần phun cách nhau 8s
+    public float startDelay = 5f;
+    public float fireInterval = 8f;
 
     [Tooltip("Thời gian lửa hiện ra trước khi bắt đầu gây damage")]
     public float preFireShowTime = 0.2f;
@@ -23,8 +23,6 @@ public class DragonFireCycle : MonoBehaviour
 
     [Header("Hitbox Grow (left -> right)")]
     public float growTime = 0.2f;
-
-    // giảm tầm lửa
     public Vector2 startSize = new Vector2(0.25f, 0.9f);
     public Vector2 endSize = new Vector2(2.4f, 0.9f);
 
@@ -33,6 +31,12 @@ public class DragonFireCycle : MonoBehaviour
     [Tooltip("Offset hitbox theo chiều dài. Giảm số này để bớt vươn xa.")]
     [Range(0.2f, 0.5f)] public float offsetFactor = 0.4f;
 
+    [Header("Damage / Knockback")]
+    public int damage = 20;
+    public float damageCooldown = 1f;
+    public float knockbackRight = 6f;
+    public float knockbackUp = 3f;
+
     [Header("Optional: trigger anim on DragonHead")]
     public Animator dragonAnimator;
     public string fireTriggerName = "Fire";
@@ -40,11 +44,15 @@ public class DragonFireCycle : MonoBehaviour
     public bool IsFiring => firing;
     private bool firing;
 
+    private float lastDamageTime = -999f;
+
     void Start()
     {
-        if (fireVFXRoot) fireVFXRoot.SetActive(true);
+        if (fireVFXRoot != null)
+            fireVFXRoot.SetActive(true);
 
-        if (fireRenderer) fireRenderer.enabled = false;
+        if (fireRenderer != null)
+            fireRenderer.enabled = false;
 
         if (hitbox != null)
         {
@@ -53,6 +61,23 @@ public class DragonFireCycle : MonoBehaviour
         }
 
         StartCoroutine(FireLoop());
+    }
+
+    void Update()
+    {
+        if (!firing || hitbox == null || !hitbox.enabled)
+            return;
+
+        Collider2D player = Physics2D.OverlapBox(
+            (Vector2)hitbox.transform.position + hitbox.offset,
+            hitbox.size,
+            0f
+        );
+
+        if (player != null && player.CompareTag("Player"))
+        {
+            TryDamagePlayer(player);
+        }
     }
 
     IEnumerator FireLoop()
@@ -77,8 +102,8 @@ public class DragonFireCycle : MonoBehaviour
             dragonAnimator.SetTrigger(fireTriggerName);
         }
 
-        // 1) hiện lửa trước
-        if (fireRenderer) fireRenderer.enabled = true;
+        if (fireRenderer != null)
+            fireRenderer.enabled = true;
 
         if (hitbox != null)
         {
@@ -88,8 +113,8 @@ public class DragonFireCycle : MonoBehaviour
 
         yield return new WaitForSeconds(preFireShowTime);
 
-        // 2) mới bắt đầu gây damage
-        if (hitbox != null) hitbox.enabled = true;
+        if (hitbox != null)
+            hitbox.enabled = true;
 
         float t = 0f;
         float gt = Mathf.Max(0.01f, growTime);
@@ -119,7 +144,8 @@ public class DragonFireCycle : MonoBehaviour
         if (remainVisual > 0f)
             yield return new WaitForSeconds(remainVisual);
 
-        if (fireRenderer) fireRenderer.enabled = false;
+        if (fireRenderer != null)
+            fireRenderer.enabled = false;
 
         firing = false;
     }
@@ -130,5 +156,37 @@ public class DragonFireCycle : MonoBehaviour
 
         hitbox.size = size;
         hitbox.offset = new Vector2(size.x * offsetFactor, offsetY);
+    }
+
+    void TryDamagePlayer(Collider2D playerCol)
+    {
+        if (Time.time < lastDamageTime + damageCooldown)
+            return;
+
+        lastDamageTime = Time.time;
+
+        // Gọi hàm damage có sẵn bên Player
+        playerCol.SendMessage("TakeDamage", damage, SendMessageOptions.DontRequireReceiver);
+
+        // Knockback: đẩy sang phải + hất lên, nhưng không phá state nhảy quá mạnh
+        Rigidbody2D rb = playerCol.GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            Vector2 v = rb.linearVelocity;
+            v.x = knockbackRight;
+            v.y = Mathf.Max(v.y, knockbackUp);
+            rb.linearVelocity = v;
+
+           
+        }
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        if (hitbox == null) return;
+
+        Gizmos.color = Color.red;
+        Vector2 center = (Vector2)hitbox.transform.position + hitbox.offset;
+        Gizmos.DrawWireCube(center, hitbox.size);
     }
 }

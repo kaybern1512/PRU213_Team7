@@ -19,6 +19,8 @@ public class Scene3PlayerTuning : MonoBehaviour
     private PlayerController pc;
     private Rigidbody2D rb;
 
+    private int lastHealth = -1; // để phát hiện khi HP thay đổi
+
     IEnumerator Start()
     {
         yield return null;
@@ -54,7 +56,10 @@ public class Scene3PlayerTuning : MonoBehaviour
         // Physics
         rb.gravityScale = gravityScale;
 
+        lastHealth = pc.health;
+
         Debug.Log("[Scene3PlayerTuning] Applied Scene3 stats + fixed max jump.");
+        Debug.Log("[Scene3PlayerTuning] Player HP: " + pc.health);
     }
 
     void FixedUpdate()
@@ -69,10 +74,17 @@ public class Scene3PlayerTuning : MonoBehaviour
             rb.linearVelocity = v;
         }
 
-        // Chỉ tăng tốc rơi xuống, KHÔNG cắt jump khi thả nút
+        // Tăng tốc rơi
         if (rb.linearVelocity.y < 0f)
         {
             rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1f) * Time.fixedDeltaTime;
+        }
+
+        // ===== LOG HP khi thay đổi =====
+        if (pc != null && pc.health != lastHealth)
+        {
+            lastHealth = pc.health;
+            Debug.Log("[Scene3] Player HP hiện tại: " + lastHealth);
         }
     }
 }

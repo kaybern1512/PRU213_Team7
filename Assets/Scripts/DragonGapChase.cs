@@ -5,7 +5,7 @@ public class DragonGapChase : MonoBehaviour
 {
     private Transform player;
     private Rigidbody2D playerRb;
-    private Animator dragonAnimator;
+    private PlayerController playerPc;
 
     [Header("Start")]
     public float startDelay = 2f;
@@ -36,47 +36,35 @@ public class DragonGapChase : MonoBehaviour
     public float noBiteAfterFire = 0.4f;
     private float noBiteUntilTime = 0f;
 
-    [Header("Bite")]
-    public bool enableBite = true;
+    [Header("Near Damage")]
+    public bool enableNearDamage = true;
     public float biteTriggerGap = 6.8f;
-    public float biteMinGap = 5.8f;
     public float biteCooldown = 1.2f;
-    public float biteLungeTime = 0.22f;
+    public int biteDamage = 20;
 
+    [Header("Knockback")]
     public float knockbackX = 6f;
     public float knockbackY = 1.5f;
 
-    public string biteTriggerName = "Bite";
-
     private float nextBiteTime = 0f;
-    private bool isLunging = false;
 
     // runtime
     private float currentSpeed;
     private float yVel;
     private float virtualX;
 
-    void Start()
-    {
-        dragonAnimator = GetComponent<Animator>();
-    }
-
     void FindPlayerIfNeeded()
     {
         if (player != null) return;
 
-        var p = GameObject.FindGameObjectWithTag("Player");
-        if (p != null) player = p.transform;
+        GameObject p = GameObject.FindGameObjectWithTag("Player");
+        if (p == null) p = GameObject.Find("Player");
 
-        if (player == null)
+        if (p != null)
         {
-            var p2 = GameObject.Find("Player");
-            if (p2 != null) player = p2.transform;
-        }
-
-        if (player != null)
-        {
-            playerRb = player.GetComponent<Rigidbody2D>();
+            player = p.transform;
+            playerRb = p.GetComponent<Rigidbody2D>();
+            playerPc = p.GetComponent<PlayerController>();
 
             chaseStartTime = Time.time;
             chaseEnabled = false;
@@ -136,40 +124,33 @@ public class DragonGapChase : MonoBehaviour
         if (firingNow)
             noBiteUntilTime = Time.time + noBiteAfterFire;
 
-        bool canBiteNow =
-            enableBite &&
-            !isLunging &&
+        bool canDamageNear =
+            enableNearDamage &&
             Time.time >= nextBiteTime &&
             Time.time >= noBiteUntilTime &&
             !firingNow &&
             dx <= biteTriggerGap;
 
-        if (canBiteNow)
+        if (canDamageNear)
         {
+            DoNearDamage();
             nextBiteTime = Time.time + biteCooldown;
-            StartCoroutine(BiteLunge());
         }
 
         RenderDragon();
     }
 
-    IEnumerator BiteLunge()
+    void DoNearDamage()
     {
-        isLunging = true;
-
-        if (dragonAnimator != null && !string.IsNullOrEmpty(biteTriggerName))
+        if (playerPc != null)
         {
-            dragonAnimator.ResetTrigger(biteTriggerName);
-            dragonAnimator.SetTrigger(biteTriggerName);
-        }
+            playerPc.health -= biteDamage;
+            Debug.Log("[Dragon Near Hit] Player HP: " + playerPc.health);
 
-        yield return new WaitForSeconds(biteLungeTime);
-
-        float dxNow = player.position.x - virtualX;
-        if (dxNow > biteMinGap)
-        {
-            isLunging = false;
-            yield break;
+            if (playerPc.health <= 0)
+            {
+                playerPc.SendMessage("Die", SendMessageOptions.DontRequireReceiver);
+            }
         }
 
         if (playerRb != null)
@@ -179,8 +160,6 @@ public class DragonGapChase : MonoBehaviour
             v.y = Mathf.Max(v.y, knockbackY);
             playerRb.linearVelocity = v;
         }
-
-        isLunging = false;
     }
 
     void RenderDragon()
@@ -191,11 +170,7 @@ public class DragonGapChase : MonoBehaviour
         float wantedY = Mathf.Clamp(playerY, baseY - yFollowRange, baseY + yFollowRange) + yOffset;
         float newY = Mathf.SmoothDamp(transform.position.y, wantedY, ref yVel, ySmooth);
 
-        float renderX = virtualX;
-        if (isLunging)
-            renderX += 1.2f;
-
-        transform.position = new Vector3(renderX, newY, transform.position.z);
+        transform.position = new Vector3(virtualX, newY, transform.position.z);
     }
 
     public float CurrentGapX()
