@@ -3,7 +3,7 @@
 public class CameraChaseScene3 : MonoBehaviour
 {
     public float smoothSpeed = 6f;
-    public float xOffset = 3.5f;   // dương => player nằm bên phải
+    public float xOffset = 4.5f;
     public float yOffset = 1.5f;
 
     public bool onlyMoveRight = true;
@@ -19,22 +19,35 @@ public class CameraChaseScene3 : MonoBehaviour
 
     void LateUpdate()
     {
-        if (target == null) { FindPlayer(); return; }
+        if (target == null)
+        {
+            FindPlayer();
+            return;
+        }
 
         float desiredX = target.position.x + xOffset;
         float desiredY = target.position.y + yOffset;
 
-        if (onlyMoveRight) desiredX = Mathf.Max(minX, desiredX);
+        if (onlyMoveRight)
+            desiredX = Mathf.Max(minX, desiredX);
 
         Vector3 desiredPos = new Vector3(desiredX, desiredY, transform.position.z);
         transform.position = Vector3.Lerp(transform.position, desiredPos, smoothSpeed * Time.deltaTime);
 
-        if (onlyMoveRight) minX = transform.position.x;
+        if (onlyMoveRight)
+            minX = transform.position.x;
     }
 
     void FindPlayer()
     {
         var p = GameObject.FindGameObjectWithTag("Player");
-        if (p != null) target = p.transform;
+        if (p != null)
+            target = p.transform;
+        else
+        {
+            var p2 = GameObject.Find("Player");
+            if (p2 != null)
+                target = p2.transform;
+        }
     }
 }

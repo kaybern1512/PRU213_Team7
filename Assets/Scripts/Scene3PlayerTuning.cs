@@ -4,14 +4,13 @@ using UnityEngine;
 public class Scene3PlayerTuning : MonoBehaviour
 {
     [Header("Scene 3 Player Stats")]
-    public float scene3MoveSpeed = 6f;
-    public float scene3JumpForce = 6f;   
+    public float scene3MoveSpeed = 8f;
+    public float scene3JumpForce = 10f;
     public int scene3MaxJump = 2;
 
     [Header("Physics Feel (per Scene 3)")]
-    public float gravityScale = 3.2f;       
-    public float fallMultiplier = 1.8f;     
-    public float lowJumpMultiplier = 1.4f;  
+    public float gravityScale = 3.2f;
+    public float fallMultiplier = 1.8f;
 
     [Header("Optional: clamp max horizontal velocity")]
     public bool clampXVelocity = true;
@@ -47,22 +46,22 @@ public class Scene3PlayerTuning : MonoBehaviour
             return;
         }
 
-        // Stats riêng cho Scene3
+        // Scene 3 stats
         pc.moveSpeed = scene3MoveSpeed;
         pc.jumpForce = scene3JumpForce;
         pc.maxJumpCount = scene3MaxJump;
 
-        // Physics riêng cho Scene3
+        // Physics
         rb.gravityScale = gravityScale;
 
-        Debug.Log("[Scene3PlayerTuning] Applied Scene3 stats + physics.");
+        Debug.Log("[Scene3PlayerTuning] Applied Scene3 stats + fixed max jump.");
     }
 
     void FixedUpdate()
     {
         if (rb == null) return;
 
-        // Clamp tốc độ chạy
+        // Clamp tốc độ chạy ngang
         if (clampXVelocity)
         {
             Vector2 v = rb.linearVelocity;
@@ -70,16 +69,10 @@ public class Scene3PlayerTuning : MonoBehaviour
             rb.linearVelocity = v;
         }
 
-        // ✅ Làm rơi nhanh hơn + nhảy “đã tay” (không floaty)
-        // rơi xuống: tăng gravity
+        // Chỉ tăng tốc rơi xuống, KHÔNG cắt jump khi thả nút
         if (rb.linearVelocity.y < 0f)
         {
             rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1f) * Time.fixedDeltaTime;
-        }
-        // đang bay lên nhưng thả nút Jump sớm: giảm độ cao (nhảy nhấp nhả)
-        else if (rb.linearVelocity.y > 0f && !Input.GetButton("Jump"))
-        {
-            rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (lowJumpMultiplier - 1f) * Time.fixedDeltaTime;
         }
     }
 }
