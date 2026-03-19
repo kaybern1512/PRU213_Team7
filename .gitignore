@@ -22,9 +22,6 @@ StreamingAssets/aa/*
 *.db
 *.opendb
 
-# ========== AUTO GENERATED META ==========
-*.meta
-
 # ========== CRASH / DUMP ==========
 sysinfo.txt
 *.dmp
