@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
@@ -10,6 +11,10 @@ public class PlayerController : MonoBehaviour
     public float jumpForce = 12f;
     public int maxJumpCount = 2;
     public PlayerAudio playerAudio;
+    public int coins = 0;
+    public Image healthBar;
+    public int maxHealth = 100;
+
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
     private float moveInput;
@@ -17,11 +22,14 @@ public class PlayerController : MonoBehaviour
     private bool isSpeedBoosted = false;
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private Transform groundCheck;
+    [SerializeField] private float groundCheckRadius = 0.2f;
+
     private bool isGrounded;
     private int jumpCount;
     private float originalJumpForce;
     private bool isJumpBoosted = false;
     private Animator animator;
+    private bool canTakeDamage = true;
 
     void Awake()
     {
@@ -35,8 +43,9 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        moveInput = Input.GetAxisRaw("Horizontal"); 
         CheckGround();
-        HandleMovement();
+        HandleMovement();   
         HandleJump();
         UpdateAnimation();
     }
@@ -46,20 +55,20 @@ public class PlayerController : MonoBehaviour
     {
         isGrounded = Physics2D.OverlapCircle(
             groundCheck.position,
-            0.12f,
+            groundCheckRadius,   
             groundLayer
         );
 
         if (isGrounded)
         {
-            jumpCount = 0; // Reset số lần nhảy khi chạm đất
+            jumpCount = 0;
         }
     }
 
     // ================= DI CHUYỂN =================
     private void HandleMovement()
     {
-        moveInput = Input.GetAxis("Horizontal");
+        //moveInput = Input.GetAxis("Horizontal");
 
         rb.linearVelocity = new Vector2(
             moveInput * moveSpeed,
@@ -95,26 +104,14 @@ public class PlayerController : MonoBehaviour
         animator.SetFloat("yVelocity", rb.linearVelocity.y);
     }
 
-
-    private bool canTakeDamage = true;
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Damage") && canTakeDamage)
+        if (collision.CompareTag("Damage"))
         {
-
-            canTakeDamage = false;
-
-            health -= 25;
-            if (playerAudio != null)
-                playerAudio.PlayHurt();
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-            StartCoroutine(BLinkRed());
-
-            if (health <= 0)
-                Die();
+            TakeDamage(25, true);
         }
     }
+
 
     private void OnTriggerExit2D(Collider2D collision)
     {
@@ -129,10 +126,11 @@ public class PlayerController : MonoBehaviour
         spriteRenderer.color = originalColor;
     }
 
-    private void Die()
+    public void Die()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
+
 
     public void BoostJump(float multiplier, float duration)
     {
@@ -158,6 +156,48 @@ public class PlayerController : MonoBehaviour
 
         Debug.Log("Ăn item hồi máu +" + amount +
                   " | HP hiện tại: " + health);
+        if (health > maxHealth)
+            health = maxHealth;
+
+        if (healthBar != null)
+        {
+            healthBar.fillAmount = (float)health / maxHealth;
+        }
+    }
+
+    public void TakeDamage(int damage, bool knockUp)
+    {
+        if (!canTakeDamage) return;
+
+        canTakeDamage = false;
+
+        health -= damage;
+
+        if (healthBar != null)
+        {
+            healthBar.fillAmount = (float)health / maxHealth;
+        }
+
+        if (playerAudio != null)
+            playerAudio.PlayHurt();
+
+        if (knockUp)
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+
+        StartCoroutine(BLinkRed());
+        Invoke(nameof(ResetCanTakeDamage), 0.4f);
+
+        if (health <= 0)
+            Die();
+    }
+    private void ResetCanTakeDamage()
+    {
+        canTakeDamage = true;
+    }
+
+    public void AddCoins(int amount)
+    {
+        coins += amount;
     }
     public void BoostSpeed(float multiplier, float duration)
     {
@@ -173,3 +213,4 @@ public class PlayerController : MonoBehaviour
         isSpeedBoosted = false;
     }
 }
+

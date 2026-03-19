@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2577408577757211061}
   - component: {fileID: 4095360154714472638}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Single
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -101,7 +101,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1856913556931383090}
   - component: {fileID: 7800367084259667149}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Single Right
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -194,7 +194,7 @@ GameObject:
   - component: {fileID: 5028883491886562069}
   - component: {fileID: 2430332708305255957}
   - component: {fileID: 2263841966614489741}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: MovingPlatformMk2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -317,7 +317,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8619514308317863322}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Container
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -352,7 +352,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 545803258067850512}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Point 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -384,7 +384,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4969760103859967018}
   - component: {fileID: 1675699003565809262}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Single (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -474,7 +474,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7349722249710253768}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Point 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -506,7 +506,7 @@ GameObject:
   m_Component:
   - component: {fileID: 805871858937779933}
   - component: {fileID: 5874690435638301747}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Single Left
   m_TagString: Untagged
   m_Icon: {fileID: 0}

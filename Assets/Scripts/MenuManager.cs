@@ -7,7 +7,7 @@ public class MenuManager : MonoBehaviour
 
     public void ChangeSkin()
     {
-        SceneManager.LoadScene("ChangeCharacter");
+        SceneManager.LoadSceneAsync(1);
     }
 
     public void PlayGame()
@@ -17,6 +17,6 @@ public class MenuManager : MonoBehaviour
             CharacterSelect.selectedCharacter = defaultRabbitPrefab;
         }
 
-        SceneManager.LoadScene("GameScene2");
+        SceneManager.LoadSceneAsync(2);
     }
 }

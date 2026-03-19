@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 
 public class Init : MonoBehaviour
 {
+    public Image healthBar;
     void Start()
     {
         GameObject selectedCharacter = CharacterSelect.selectedCharacter;
@@ -23,5 +25,13 @@ public class Init : MonoBehaviour
         );
 
         player.name = "Player";
+
+        PlayerController pc = player.GetComponent<PlayerController>();
+
+        if (pc != null)
+        {
+            pc.healthBar = healthBar;
+            healthBar.fillAmount = (float)pc.health / pc.maxHealth;
+        }
     }
 }

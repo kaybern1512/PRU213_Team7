@@ -189,9 +189,9 @@ Rigidbody2D:
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 4
 --- !u!114 &3571308822919581118
 MonoBehaviour:
@@ -206,10 +206,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   health: 100
-  moveSpeed: 15
-  jumpForce: 14
+  moveSpeed: 14
+  jumpForce: 12
   maxJumpCount: 2
   playerAudio: {fileID: 3496812765266746794}
+  coins: 0
+  healthBar: {fileID: 0}
+  maxHealth: 100
   groundLayer:
     serializedVersion: 2
     m_Bits: 256

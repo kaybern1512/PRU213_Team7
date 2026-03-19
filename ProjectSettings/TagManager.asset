@@ -7,6 +7,10 @@ TagManager:
   - Ground
   - Damage
   - FinishGame
+  - Enemy
+  - Coin
+  - HealthBar
+  - Box
   layers:
   - Default
   - TransparentFX
@@ -18,7 +22,7 @@ TagManager:
   - Boss
   - Ground
   - Damage
-  - 
+  - Enemy
   - 
   - 
   - 
