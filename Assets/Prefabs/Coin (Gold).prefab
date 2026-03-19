@@ -128,7 +128,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d53aca79a87ba548bfc9e81c5664857, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Coin
-  coinsToGive: 1
+  coinsToGive: 3
 --- !u!61 &4547567731735338082
 BoxCollider2D:
   m_ObjectHideFlags: 0

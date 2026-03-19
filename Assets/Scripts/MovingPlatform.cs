@@ -1,17 +1,16 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class MovingPlatform : MonoBehaviour
 {
     public float speed = 2f;
     public Transform[] points;
 
-    private Vector3[] worldPoints; // lưu vị trí world của point
+    private Vector3[] worldPoints;
     private int i;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        // kiểm tra an toàn
         if (points == null || points.Length < 2)
         {
             Debug.LogError($"{gameObject.name} cần ít nhất 2 point");
@@ -19,7 +18,6 @@ public class MovingPlatform : MonoBehaviour
             return;
         }
 
-        // lưu vị trí world của các point (tránh point bị kéo theo platform)
         worldPoints = new Vector3[points.Length];
         for (int j = 0; j < points.Length; j++)
         {
@@ -27,10 +25,9 @@ public class MovingPlatform : MonoBehaviour
         }
 
         transform.position = worldPoints[0];
-        i = 1; // bắt đầu đi tới point tiếp theo
+        i = 1;
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (Vector2.Distance(transform.position, worldPoints[i]) < 0.01f)
@@ -51,7 +48,7 @@ public class MovingPlatform : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Player"))
+        if (collision.gameObject.CompareTag("Player") && collision.transform.parent != transform)
         {
             collision.transform.SetParent(transform, true);
         }
@@ -61,7 +58,17 @@ public class MovingPlatform : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            collision.transform.SetParent(null, true);
+            StartCoroutine(RemoveParentNextFrame(collision.transform));
+        }
+    }
+
+    private IEnumerator RemoveParentNextFrame(Transform player)
+    {
+        yield return null;
+
+        if (player != null && player.parent == transform)
+        {
+            player.SetParent(null, true);
         }
     }
 }

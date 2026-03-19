@@ -21,11 +21,14 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private Transform groundCheck;
+    [SerializeField] private float groundCheckRadius = 0.2f;
+
     private bool isGrounded;
     private int jumpCount;
     private float originalJumpForce;
     private bool isJumpBoosted = false;
     private Animator animator;
+    private bool canTakeDamage = true;
 
     void Awake()
     {
@@ -38,8 +41,9 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        moveInput = Input.GetAxisRaw("Horizontal"); 
         CheckGround();
-        HandleMovement();
+        HandleMovement();   
         HandleJump();
         UpdateAnimation();
     }
@@ -49,20 +53,20 @@ public class PlayerController : MonoBehaviour
     {
         isGrounded = Physics2D.OverlapCircle(
             groundCheck.position,
-            0.12f,
+            groundCheckRadius,   
             groundLayer
         );
 
         if (isGrounded)
         {
-            jumpCount = 0; // Reset số lần nhảy khi chạm đất
+            jumpCount = 0;
         }
     }
 
     // ================= DI CHUYỂN =================
     private void HandleMovement()
     {
-        moveInput = Input.GetAxis("Horizontal");
+        //moveInput = Input.GetAxis("Horizontal");
 
         rb.linearVelocity = new Vector2(
             moveInput * moveSpeed,
@@ -97,9 +101,6 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("isGrounded", isGrounded);
         animator.SetFloat("yVelocity", rb.linearVelocity.y);
     }
-
-
-    private bool canTakeDamage = true;
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -182,9 +183,14 @@ public class PlayerController : MonoBehaviour
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
 
         StartCoroutine(BLinkRed());
+        Invoke(nameof(ResetCanTakeDamage), 0.4f);
 
         if (health <= 0)
             Die();
+    }
+    private void ResetCanTakeDamage()
+    {
+        canTakeDamage = true;
     }
 
     public void AddCoins(int amount)

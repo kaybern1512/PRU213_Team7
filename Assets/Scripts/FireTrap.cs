@@ -6,10 +6,10 @@ public class FireTrap : MonoBehaviour
 
     public Collider2D damageCollider;
 
-    public Sprite fireOff;     // sprite khi tắt
+    public Sprite fireOff;
     private SpriteRenderer sr;
 
-    private Animator animator; // animator cho lửa
+    private Animator animator;
 
     void Awake()
     {
@@ -24,5 +24,17 @@ public class FireTrap : MonoBehaviour
         damageCollider.enabled = state;
 
         animator.SetBool("isOn", state);
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (!isActive) return;
+
+        PlayerController player = collision.GetComponent<PlayerController>();
+
+        if (player != null)
+        {
+            player.TakeDamage(100, true); // hard code damage 100
+        }
     }
 }

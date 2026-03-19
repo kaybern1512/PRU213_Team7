@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 8234290844898273628}
   - component: {fileID: 302302671867248535}
   - component: {fileID: 7626714168615960335}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: 'DisappearGround '
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -31,7 +31,7 @@ Transform:
   m_GameObject: {fileID: 4407861147468067196}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 15.43, y: -0.64, z: 0}
+  m_LocalPosition: {x: 14.11, y: -0.73, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -46,11 +46,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 4407861147468067196}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bbf3be632b367794aab990b8856edecd, type: 3}
+  m_Script: {fileID: 11500000, guid: a58a886beac66c143ac94b87c6aea0c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DisappearPlatform
-  blinkDuration: 3
-  blinkInterval: 0.2
+  blinkDuration: 4
+  blinkInterval: 0.15
 --- !u!1839735485 &2748989853268820587
 Tilemap:
   m_ObjectHideFlags: 0

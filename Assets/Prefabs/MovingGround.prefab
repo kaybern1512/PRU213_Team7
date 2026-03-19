@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2392145560343082458}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Point 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41,7 +41,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3422921471352422334}
   - component: {fileID: 6625561595431296082}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Single
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -131,7 +131,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1661585979759656123}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Point 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -162,7 +162,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9182606619364767989}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: MovingGround
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -199,9 +199,9 @@ GameObject:
   - component: {fileID: 1275161643582731137}
   - component: {fileID: 6502293198194506626}
   - component: {fileID: 875324377328714588}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: Container
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -323,7 +323,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1987879271825535904}
   - component: {fileID: 9193337178880555106}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Single Right
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -414,7 +414,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5636689125371403004}
   - component: {fileID: 827189399943243792}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Single Left
   m_TagString: Untagged
   m_Icon: {fileID: 0}

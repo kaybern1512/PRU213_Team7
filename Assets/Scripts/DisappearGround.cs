@@ -30,8 +30,7 @@ public class DisappearTilemap : MonoBehaviour
     {
         if (triggered) return;
 
-        if (collision.collider.CompareTag("Player") ||
-            collision.collider.CompareTag("Enemy"))
+        if (collision.collider.CompareTag("Player") )
         {
             triggered = true;
             StartCoroutine(BlinkAndDisappear());
@@ -50,12 +49,12 @@ public class DisappearTilemap : MonoBehaviour
         }
 
         // Biến mất hoàn toàn
-        tr.enabled = false;
+        tr.enabled = false;  // ẩn hình ảnh
 
         if (compositeCol != null)
-            compositeCol.enabled = false;
+            compositeCol.enabled = false; // tắt collider tổng hợp
 
         if (tileCol != null && !tileCol.usedByComposite)
-            tileCol.enabled = false;
+            tileCol.enabled = false;   // tắt collider gốc (nếu không dùng composite)
     }
 }
