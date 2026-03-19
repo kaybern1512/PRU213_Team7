@@ -11,7 +11,10 @@ public class BossTriggerZone : MonoBehaviour
         {
             if (boss != null)
             {
+                // Gán trực tiếp Transform của Player cho Boss trước khi bắt đầu
+                boss.player = other.transform;
                 boss.StartBattle();
+
                 // Hủy hoặc tắt trigger sau khi kích hoạt để tránh gọi lại nhiều lần
                 gameObject.SetActive(false);
             }

@@ -100,12 +100,19 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.CompareTag("Damage") && canTakeDamage)
         {
-
             canTakeDamage = false;
 
-            health -= 25;
+            // Kiểm tra xem vật thể chạm vào có script BossDamage hay không
+            BossDamage bossDmg = collision.GetComponent<BossDamage>();
+
+            // Nếu có script thì lấy giá trị 'damage' của nó, nếu không có thì mặc định trừ 25
+            int damageValue = (bossDmg != null) ? bossDmg.damage : 25;
+
+            health -= damageValue; // Sử dụng giá trị linh hoạt thay vì số 25 cố định
+
             if (playerAudio != null)
                 playerAudio.PlayHurt();
+
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
             StartCoroutine(BLinkRed());
 
@@ -157,4 +164,35 @@ public class PlayerController : MonoBehaviour
         Debug.Log("Ăn item hồi máu +" + amount +
                   " | HP hiện tại: " + health);
     }
+
+    // Hàm này cho phép Boss chủ động gây sát thương
+    public void TakeDamage(int damageAmount, Vector2 damageSourcePos)
+    {
+        if (!canTakeDamage) return; // Nếu đang trong thời gian bất tử thì bỏ qua
+
+        canTakeDamage = false; // Bắt đầu thời gian bất tử
+        health -= damageAmount;
+
+        if (playerAudio != null)
+            playerAudio.PlayHurt();
+
+        // Hiệu ứng nhấp nháy đỏ
+        StartCoroutine(BLinkRed());
+
+        // --- LOGIC KNOCKBACK (Đẩy lùi) ---
+        // Đẩy lên trên và đẩy ra xa khỏi vị trí Boss
+        float knockbackDir = (transform.position.x < damageSourcePos.x) ? -1f : 1f;
+        rb.linearVelocity = new Vector2(knockbackDir * 10f, jumpForce);
+
+        if (health <= 0) Die();
+
+        // Đợi 0.5s sau đó cho phép nhận sát thương tiếp
+        Invoke(nameof(ResetDamageCooldown), 0.5f);
+    }
+
+    private void ResetDamageCooldown()
+    {
+        canTakeDamage = true;
+    }
 }
+

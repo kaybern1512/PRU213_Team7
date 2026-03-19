@@ -40746,13 +40746,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d22a9d53d933006428aac76a8f4742b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BossController
-  dashSpeed: 16
+  dashSpeed: 22
   attackRange: 5.5
   attackRate: 0.5
   jumpForceX: 12
   jumpForceY: 16
   playerJumpThreshold: 2
-  player: {fileID: 0}
+  player: {fileID: 4297904726077900947, guid: d772a689a475f30488448ba3af3b3039, type: 3}
   groundLayer:
     serializedVersion: 2
     m_Bits: 256
@@ -46924,7 +46924,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a9cee813dc905140baf3f5a6d3f2faf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BossTriggerZone
-  boss: {fileID: 353384172}
+  boss: {fileID: 0}
 --- !u!1 &1333299805
 GameObject:
   m_ObjectHideFlags: 0
