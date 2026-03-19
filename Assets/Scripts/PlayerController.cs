@@ -18,7 +18,8 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
     private float moveInput;
-
+    private float originalSpeed;
+    private bool isSpeedBoosted = false;
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private Transform groundCheck;
     [SerializeField] private float groundCheckRadius = 0.2f;
@@ -36,6 +37,7 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         originalJumpForce = jumpForce;
+        originalSpeed = moveSpeed;
 
     }
 
@@ -196,6 +198,19 @@ public class PlayerController : MonoBehaviour
     public void AddCoins(int amount)
     {
         coins += amount;
+    }
+    public void BoostSpeed(float multiplier, float duration)
+    {
+        if (isSpeedBoosted) return;
+        isSpeedBoosted = true;
+        moveSpeed *= multiplier;
+        Invoke(nameof(ResetSpeed), duration);
+    }
+
+    private void ResetSpeed()
+    {
+        moveSpeed = originalSpeed;
+        isSpeedBoosted = false;
     }
 }
 
