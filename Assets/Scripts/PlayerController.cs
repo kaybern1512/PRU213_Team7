@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -10,6 +10,9 @@ public class PlayerController : MonoBehaviour
     public float jumpForce = 12f;
     public int maxJumpCount = 2;
     public PlayerAudio playerAudio;
+    public int coins = 0;
+    private float originalSpeed;
+    private bool isSpeedBoosted = false;
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
     private float moveInput;
@@ -28,7 +31,7 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         originalJumpForce = jumpForce;
-
+        originalSpeed = moveSpeed;
     }
 
     void Update()
@@ -58,11 +61,7 @@ public class PlayerController : MonoBehaviour
     private void HandleMovement()
     {
         moveInput = Input.GetAxis("Horizontal");
-
-        rb.linearVelocity = new Vector2(
-            moveInput * moveSpeed,
-            rb.linearVelocity.y
-        );
+        rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
 
         if (moveInput != 0)
             spriteRenderer.flipX = moveInput < 0;
@@ -73,15 +72,12 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetButtonDown("Jump") && jumpCount < maxJumpCount)
         {
-            rb.linearVelocity = new Vector2(
-                rb.linearVelocity.x,
-                jumpForce
-            );
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
             jumpCount++;
-            if (playerAudio != null)
-                playerAudio.PlayJump();
+            if (playerAudio != null) playerAudio.PlayJump();
         }
     }
+
 
     // ================= ANIMATION =================
     private void UpdateAnimation()
@@ -98,21 +94,12 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Damage") && canTakeDamage)
+        if (collision.CompareTag("Damage"))
         {
-
-            canTakeDamage = false;
-
-            health -= 25;
-            if (playerAudio != null)
-                playerAudio.PlayHurt();
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
-            StartCoroutine(BLinkRed());
-
-            if (health <= 0)
-                Die();
+            TakeDamage(25, true);
         }
     }
+
 
     private void OnTriggerExit2D(Collider2D collision)
     {
@@ -127,16 +114,18 @@ public class PlayerController : MonoBehaviour
         spriteRenderer.color = originalColor;
     }
 
-    private void Die()
+    public void Die()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
+
 
     public void BoostJump(float multiplier, float duration)
     {
         if (isJumpBoosted) return;
 
         isJumpBoosted = true;
+        originalJumpForce = jumpForce;
         jumpForce *= multiplier;
         Invoke(nameof(ResetJump), duration);
     }
@@ -156,5 +145,44 @@ public class PlayerController : MonoBehaviour
 
         Debug.Log("Ăn item hồi máu +" + amount +
                   " | HP hiện tại: " + health);
+    }
+
+    public void TakeDamage(int damage, bool knockUp)
+    {
+        if (!canTakeDamage) return;
+
+        canTakeDamage = false;
+
+        health -= damage;
+
+        if (playerAudio != null)
+            playerAudio.PlayHurt();
+
+        if (knockUp)
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+
+        StartCoroutine(BLinkRed());
+
+        if (health <= 0)
+            Die();
+    }
+    public void AddCoins(int amount)
+    {
+        coins += amount;
+    }
+
+    public void BoostSpeed(float multiplier, float duration)
+    {
+        if (isSpeedBoosted) return;
+        isSpeedBoosted = true;
+        originalSpeed = moveSpeed;
+        moveSpeed *= multiplier;
+        Invoke(nameof(ResetSpeed), duration);
+    }
+
+    private void ResetSpeed()
+    {
+        moveSpeed = originalSpeed;
+        isSpeedBoosted = false;
     }
 }
