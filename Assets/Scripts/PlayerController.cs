@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -11,7 +11,8 @@ public class PlayerController : MonoBehaviour
     public int maxJumpCount = 2;
     public PlayerAudio playerAudio;
     public int coins = 0;
-
+    private float originalSpeed;
+    private bool isSpeedBoosted = false;
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
     private float moveInput;
@@ -30,7 +31,7 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         originalJumpForce = jumpForce;
-
+        originalSpeed = moveSpeed;
     }
 
     void Update()
@@ -60,11 +61,7 @@ public class PlayerController : MonoBehaviour
     private void HandleMovement()
     {
         moveInput = Input.GetAxis("Horizontal");
-
-        rb.linearVelocity = new Vector2(
-            moveInput * moveSpeed,
-            rb.linearVelocity.y
-        );
+        rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
 
         if (moveInput != 0)
             spriteRenderer.flipX = moveInput < 0;
@@ -75,15 +72,12 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetButtonDown("Jump") && jumpCount < maxJumpCount)
         {
-            rb.linearVelocity = new Vector2(
-                rb.linearVelocity.x,
-                jumpForce
-            );
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
             jumpCount++;
-            if (playerAudio != null)
-                playerAudio.PlayJump();
+            if (playerAudio != null) playerAudio.PlayJump();
         }
     }
+
 
     // ================= ANIMATION =================
     private void UpdateAnimation()
@@ -131,6 +125,7 @@ public class PlayerController : MonoBehaviour
         if (isJumpBoosted) return;
 
         isJumpBoosted = true;
+        originalJumpForce = jumpForce;
         jumpForce *= multiplier;
         Invoke(nameof(ResetJump), duration);
     }
@@ -175,5 +170,19 @@ public class PlayerController : MonoBehaviour
     {
         coins += amount;
     }
-}
 
+    public void BoostSpeed(float multiplier, float duration)
+    {
+        if (isSpeedBoosted) return;
+        isSpeedBoosted = true;
+        originalSpeed = moveSpeed;
+        moveSpeed *= multiplier;
+        Invoke(nameof(ResetSpeed), duration);
+    }
+
+    private void ResetSpeed()
+    {
+        moveSpeed = originalSpeed;
+        isSpeedBoosted = false;
+    }
+}
