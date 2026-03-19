@@ -17,6 +17,6 @@ public class MenuManager : MonoBehaviour
             CharacterSelect.selectedCharacter = defaultRabbitPrefab;
         }
 
-        SceneManager.LoadScene("GameScene3");
+        SceneManager.LoadScene("GameScene2");
     }
 }

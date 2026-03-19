@@ -55,7 +55,7 @@ public class CharacterSelect : MonoBehaviour
     }
     public void OnPlayBtnClick()
     {
-        SceneManager.LoadScene("Map2");
+        SceneManager.LoadScene("GameScene2");
     }
 
 }

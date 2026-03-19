@@ -13,7 +13,8 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
     private float moveInput;
-
+    private float originalSpeed;
+    private bool isSpeedBoosted = false;
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private Transform groundCheck;
     private bool isGrounded;
@@ -28,6 +29,7 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         originalJumpForce = jumpForce;
+        originalSpeed = moveSpeed;
 
     }
 
@@ -156,5 +158,18 @@ public class PlayerController : MonoBehaviour
 
         Debug.Log("Ăn item hồi máu +" + amount +
                   " | HP hiện tại: " + health);
+    }
+    public void BoostSpeed(float multiplier, float duration)
+    {
+        if (isSpeedBoosted) return;
+        isSpeedBoosted = true;
+        moveSpeed *= multiplier;
+        Invoke(nameof(ResetSpeed), duration);
+    }
+
+    private void ResetSpeed()
+    {
+        moveSpeed = originalSpeed;
+        isSpeedBoosted = false;
     }
 }
