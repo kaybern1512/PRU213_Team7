@@ -19,4 +19,9 @@ public class MenuManager : MonoBehaviour
 
         SceneManager.LoadSceneAsync(2);
     }
+    public void QuitGame()
+    {
+        UnityEditor.EditorApplication.isPlaying = false; // Thoát khi đang test trong Unity
+        Application.Quit(); // Thoát khi đã xuất bản game (Build)
+    }
 }
