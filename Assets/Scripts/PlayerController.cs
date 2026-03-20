@@ -220,6 +220,35 @@ public class PlayerController : MonoBehaviour
         if (health <= 0)
             Die();
     }
+
+    public void TakeDamage(int damage, Vector2 attackerPos)
+    {
+        if (!canTakeDamage) return;
+
+        canTakeDamage = false;
+
+        health -= damage;
+
+        if (healthBar != null)
+        {
+            healthBar.fillAmount = (float)health / maxHealth;
+        }
+
+        if (playerAudio != null)
+            playerAudio.PlayHurt();
+
+        // Knockback from boss attacker position
+        Vector2 knockDir = ((Vector2)transform.position - attackerPos).normalized;
+        knockDir.y = Mathf.Max(knockDir.y, 0.3f);
+        rb.linearVelocity = new Vector2(knockDir.x * 8f, knockDir.y * jumpForce);
+
+        StartCoroutine(BLinkRed());
+        Invoke(nameof(ResetCanTakeDamage), 0.4f);
+
+        if (health <= 0)
+            Die();
+    }
+
     private void ResetCanTakeDamage()
     {
         canTakeDamage = true;
