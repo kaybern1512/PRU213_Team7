@@ -31,6 +31,15 @@ public class PlayerController : MonoBehaviour
     private Animator animator;
     private bool canTakeDamage = true;
 
+    [Header("Fly Settings")]
+    public float flyMoveSpeed = 10f;
+    public float flyVerticalSpeed = 10f;
+    public GameObject headFan;
+
+    private bool isFlying = false;
+    private float originalGravityScale;
+    private Coroutine flyCoroutine;
+
     void Awake()
     {
         animator = GetComponent<Animator>();
@@ -38,14 +47,25 @@ public class PlayerController : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         originalJumpForce = jumpForce;
         originalSpeed = moveSpeed;
+        originalGravityScale = rb.gravityScale;
 
+        if (headFan != null)
+            headFan.SetActive(false);
     }
 
     void Update()
     {
-        moveInput = Input.GetAxisRaw("Horizontal"); 
+        moveInput = Input.GetAxisRaw("Horizontal");
+
+        if (isFlying)
+        {
+            HandleFlyMovement();
+            UpdateAnimation();
+            return;
+        }
+
         CheckGround();
-        HandleMovement();   
+        HandleMovement();
         HandleJump();
         UpdateAnimation();
     }
@@ -97,11 +117,21 @@ public class PlayerController : MonoBehaviour
     // ================= ANIMATION =================
     private void UpdateAnimation()
     {
+        if (isFlying)
+        {
+            animator.SetBool("isFlying", true);
+            animator.SetBool("isGrounded", false);
+            animator.SetBool("isRunning", Mathf.Abs(rb.linearVelocity.x) > 0.1f);
+            animator.SetFloat("yVelocity", rb.linearVelocity.y);
+            return;
+        }
+
         bool isRunning = Mathf.Abs(rb.linearVelocity.x) > 0.1f;
 
         animator.SetBool("isRunning", isRunning);
         animator.SetBool("isGrounded", isGrounded);
         animator.SetFloat("yVelocity", rb.linearVelocity.y);
+        animator.SetBool("isFlying", false);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -211,6 +241,58 @@ public class PlayerController : MonoBehaviour
     {
         moveSpeed = originalSpeed;
         isSpeedBoosted = false;
+    }
+
+    private void HandleFlyMovement()
+    {
+        float verticalInput = 0f;
+
+        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.Space))
+            verticalInput = 1f;
+        else if (Input.GetKey(KeyCode.S))
+            verticalInput = -1f;
+
+        rb.linearVelocity = new Vector2(
+            moveInput * flyMoveSpeed,
+            verticalInput * flyVerticalSpeed
+        );
+
+        if (moveInput != 0)
+            spriteRenderer.flipX = moveInput < 0;
+    }
+
+    public void ActivateFly(float duration)
+    {
+        if (flyCoroutine != null)
+            StopCoroutine(flyCoroutine);
+
+        flyCoroutine = StartCoroutine(FlyCoroutine(duration));
+    }
+
+    private IEnumerator FlyCoroutine(float duration)
+    {
+        isFlying = true;
+        rb.gravityScale = 0f;
+        rb.linearVelocity = Vector2.zero;
+
+        if (headFan != null)
+            headFan.SetActive(true);
+
+        if (animator != null)
+            animator.SetBool("isFlying", true);
+
+        yield return new WaitForSeconds(duration);
+
+        isFlying = false;
+        rb.gravityScale = originalGravityScale;
+
+        if (headFan != null)
+            headFan.SetActive(false);
+
+        if (animator != null)
+            animator.SetBool("isFlying", false);
+
+        flyCoroutine = null;
     }
 }
 
